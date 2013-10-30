@@ -18,20 +18,17 @@ using Amazon.S3;
 using Amazon;
 namespace ClientWinForms
 {
-	public class MainForm:Form
-	{
-		SettingsForm SettingsForm = null;
-		Button SettingsButton = new Button();
-		Button StartSync = new Button();
-		Button Clear = new Button();
-		TextBox Console = new TextBox();
-		ProgressBar Progress = new ProgressBar();
+	public class MainForm:Form {
+		private Button SettingsButton = new Button();
+		private Button StartSync = new Button();
+		private Button Clear = new Button();
+		private TextBox Console = new TextBox();
+		private ProgressBar Progress = new ProgressBar();
         private BackgroundWorker backgroundWorker = null;
+        private SettingsForm SettingsForm = null;
 
 		public static int DownloadCount =0;
 		public static int ErrorCount =0;
-
-
 
 
 		public MainForm ()
@@ -41,67 +38,84 @@ namespace ClientWinForms
 			} catch (Exception ex) {
 				System.Console.WriteLine (ex.Message);
 			}
-			;
 
-			this.SuspendLayout ();
-			this.Width = 530;
-			this.Height = 350;
-			this.Font = new Font ("monospaced", 12);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
-			this.StartPosition = FormStartPosition.CenterScreen;
-			this.Text = "Echo";
+            InitializeComponent();
 
+            InitializeBackgroundWorker();
 
-			Settings.ReadConfigFile (Settings.CONFIG_FILE_CLIENT);
+            if (!Settings.HaveReadSettingsFile) {
+                MessageBox.Show("Settings File Not Found.\r\nPlease Edit Your settings and save them\r\n\r\nYou MUST change s3IDKey and s3SecretKey");
+                SettingsForm.ShowDialog();
+            }
+        }
 
-			SettingsForm = new SettingsForm ();
+        private void InitializeComponent(){
+            this.SettingsButton = new System.Windows.Forms.Button();
+            this.StartSync = new System.Windows.Forms.Button();
+            this.Clear = new System.Windows.Forms.Button();
+            this.Console = new System.Windows.Forms.TextBox();
+            this.Progress = new System.Windows.Forms.ProgressBar();
+            this.SuspendLayout();
+            // 
+            // SettingsButton
+            // 
+            this.SettingsButton.Location = new System.Drawing.Point(382, 32);
+            this.SettingsButton.Name = "SettingsButton";
+            this.SettingsButton.Size = new System.Drawing.Size(128, 32);
+            this.SettingsButton.TabIndex = 0;
+            this.SettingsButton.Text = "Settings";
+            // 
+            // StartSync
+            // 
+            this.StartSync.Location = new System.Drawing.Point(0, 32);
+            this.StartSync.Name = "StartSync";
+            this.StartSync.Size = new System.Drawing.Size(256, 32);
+            this.StartSync.TabIndex = 1;
+            this.StartSync.Text = "Start Scan and Sync";
+            // 
+            // Clear
+            // 
+            this.Clear.Location = new System.Drawing.Point(256, 32);
+            this.Clear.Name = "Clear";
+            this.Clear.Size = new System.Drawing.Size(126, 32);
+            this.Clear.TabIndex = 4;
+            this.Clear.Text = "Clear";
+            // 
+            // Console
+            // 
+            this.Console.Location = new System.Drawing.Point(0, 64);
+            this.Console.Multiline = true;
+            this.Console.Name = "Console";
+            this.Console.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.Console.Size = new System.Drawing.Size(510, 256);
+            this.Console.TabIndex = 2;
+            // 
+            // Progress
+            // 
+            this.Progress.Location = new System.Drawing.Point(0, 8);
+            this.Progress.Name = "Progress";
+            this.Progress.Size = new System.Drawing.Size(512, 16);
+            this.Progress.TabIndex = 3;
+            // 
+            // MainForm
+            // 
+            this.ClientSize = new System.Drawing.Size(514, 312);
+            this.Controls.Add(this.SettingsButton);
+            this.Controls.Add(this.StartSync);
+            this.Controls.Add(this.Console);
+            this.Controls.Add(this.Progress);
+            this.Controls.Add(this.Clear);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Echo";
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
-			SettingsButton.Text = "Settings";
-			SettingsButton.Location = new Point (382, 32);
-			SettingsButton.Width = 128;
-			SettingsButton.Height = 32;
-			SettingsButton.MouseClick += this.ShowSettings;
-
-			StartSync.Text = "Start Scan and Sync";
-			StartSync.Location = new Point (0, 32);
-			StartSync.Width = 256;
-			StartSync.Height = 32;
-			StartSync.MouseClick += this.RunSyncAndScan;
-
-			Clear.Text = "Clear";
-			Clear.Location = new Point (256, 32);
-			Clear.Width = 126;
-			Clear.Height = 32;
-			Clear.MouseClick += this.ClearConsole;
-
-			Console.Multiline = true;
-			Console.Text += "Read Settings file" + Environment.NewLine;
-			Console.Location = new Point (0, 64);
-			Console.Width = 510;
-			Console.Height = 256;
-			Console.ScrollBars = ScrollBars.Both;
-
-			Progress.Location = new Point (0, 8);
-			Progress.Width = 512;
-			Progress.Height = 16;
-
-			this.Controls.Add (SettingsButton);
-			this.Controls.Add (StartSync);
-			this.Controls.Add (Console);
-			this.Controls.Add (Progress);
-			this.Controls.Add (Clear);
-
-			this.ResumeLayout ();
-
-			InitializeBackgroundWorker ();
-
-			if (!Settings.HaveReadSettingsFile) {
-				MessageBox.Show("Settings File Not Found.\r\nPlease Edit Your settings and save them\r\n\r\nYou MUST change s3IDKey and s3SecretKey");
-				SettingsForm.ShowDialog();
-			}
 		}
+
 		private void ClearConsole (Object o, MouseEventArgs args)
 		{
 			Console.Text ="";
@@ -258,8 +272,8 @@ namespace ClientWinForms
 			int nextFile =0;
 			GetObjectRequest request;
 			AmazonS3Client s3 = new  AmazonS3Client (Settings.s3IDKey, Settings.s3SecretKey);
-			while(nextFile < FilesToDownload.Count || DownloadCount >0 ){
-				if(DownloadCount < tasklimit && nextFile<FilesToDownload.Count){
+			while(nextFile < FilesToDownload.Count || DownloadCount > 0){
+				if(DownloadCount < tasklimit && nextFile < FilesToDownload.Count){
 					request = new GetObjectRequest();
 					request.BucketName = Settings.s3Bucket;
 					request.Key = FilesToDownload[nextFile].Substring (1);//use substring so we elminate the /
