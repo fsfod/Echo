@@ -142,7 +142,7 @@ namespace ClientWinForms
                 return;
             }
 
-            this.Console.Text += text;
+            this.Console.AppendText(text);
         }
 
 
