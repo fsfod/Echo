@@ -49,6 +49,7 @@ namespace Shared
 			string data = "";
 
 				HttpWebRequest req =  (HttpWebRequest)WebRequest.Create(Settings.HashServer);
+                req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 				HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
 				StreamReader read = new StreamReader( resp.GetResponseStream());
 				data = read.ReadToEnd();
