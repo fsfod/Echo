@@ -39,6 +39,10 @@ namespace ClientWinForms
 				System.Console.WriteLine (ex.Message);
 			}
 
+            Settings.ReadConfigFile(Settings.CONFIG_FILE_CLIENT);
+
+            SettingsForm = new SettingsForm();
+
             InitializeComponent();
 
             InitializeBackgroundWorker();
@@ -64,6 +68,7 @@ namespace ClientWinForms
             this.SettingsButton.Size = new System.Drawing.Size(128, 32);
             this.SettingsButton.TabIndex = 0;
             this.SettingsButton.Text = "Settings";
+            this.SettingsButton.MouseClick += this.ShowSettings;
             // 
             // StartSync
             // 
@@ -72,6 +77,7 @@ namespace ClientWinForms
             this.StartSync.Size = new System.Drawing.Size(256, 32);
             this.StartSync.TabIndex = 1;
             this.StartSync.Text = "Start Scan and Sync";
+            this.StartSync.MouseClick += this.RunSyncAndScan;
             // 
             // Clear
             // 
@@ -80,6 +86,7 @@ namespace ClientWinForms
             this.Clear.Size = new System.Drawing.Size(126, 32);
             this.Clear.TabIndex = 4;
             this.Clear.Text = "Clear";
+            this.Clear.MouseClick += this.ClearConsole;
             // 
             // Console
             // 
