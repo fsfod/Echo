@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Amazon.S3.Model;
 using Amazon.S3;
 using Amazon;
+using System.Diagnostics;
 namespace ClientWinForms
 {
 	public class MainForm:Form {
@@ -28,6 +29,7 @@ namespace ClientWinForms
         private SettingsForm SettingsForm = null;
 
 		public static int DownloadCount =0;
+        private Button StartNS2;
 		public static int ErrorCount =0;
 
 
@@ -59,13 +61,14 @@ namespace ClientWinForms
             this.Clear = new System.Windows.Forms.Button();
             this.Console = new System.Windows.Forms.TextBox();
             this.Progress = new System.Windows.Forms.ProgressBar();
+            this.StartNS2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // SettingsButton
             // 
-            this.SettingsButton.Location = new System.Drawing.Point(382, 32);
+            this.SettingsButton.Location = new System.Drawing.Point(351, 32);
             this.SettingsButton.Name = "SettingsButton";
-            this.SettingsButton.Size = new System.Drawing.Size(128, 32);
+            this.SettingsButton.Size = new System.Drawing.Size(96, 32);
             this.SettingsButton.TabIndex = 0;
             this.SettingsButton.Text = "Settings";
             this.SettingsButton.MouseClick += this.ShowSettings;
@@ -81,9 +84,9 @@ namespace ClientWinForms
             // 
             // Clear
             // 
-            this.Clear.Location = new System.Drawing.Point(256, 32);
+            this.Clear.Location = new System.Drawing.Point(262, 32);
             this.Clear.Name = "Clear";
-            this.Clear.Size = new System.Drawing.Size(126, 32);
+            this.Clear.Size = new System.Drawing.Size(83, 32);
             this.Clear.TabIndex = 4;
             this.Clear.Text = "Clear";
             this.Clear.MouseClick += this.ClearConsole;
@@ -94,19 +97,29 @@ namespace ClientWinForms
             this.Console.Multiline = true;
             this.Console.Name = "Console";
             this.Console.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.Console.Size = new System.Drawing.Size(510, 256);
+            this.Console.Size = new System.Drawing.Size(557, 256);
             this.Console.TabIndex = 2;
             // 
             // Progress
             // 
             this.Progress.Location = new System.Drawing.Point(0, 8);
             this.Progress.Name = "Progress";
-            this.Progress.Size = new System.Drawing.Size(512, 16);
+            this.Progress.Size = new System.Drawing.Size(557, 16);
             this.Progress.TabIndex = 3;
+            // 
+            // StartNS2
+            // 
+            this.StartNS2.Location = new System.Drawing.Point(453, 32);
+            this.StartNS2.Name = "StartNS2";
+            this.StartNS2.Size = new System.Drawing.Size(96, 32);
+            this.StartNS2.TabIndex = 5;
+            this.StartNS2.Text = "Start NS2";
+            this.StartNS2.Click += new System.EventHandler(this.StartNS2_Click);
             // 
             // MainForm
             // 
-            this.ClientSize = new System.Drawing.Size(514, 312);
+            this.ClientSize = new System.Drawing.Size(569, 312);
+            this.Controls.Add(this.StartNS2);
             this.Controls.Add(this.SettingsButton);
             this.Controls.Add(this.StartSync);
             this.Controls.Add(this.Console);
@@ -356,6 +369,25 @@ namespace ClientWinForms
 			DownloadCount--;
 
 		}
+
+        private Process NS2Process;
+
+        private void StartNS2_Click(object sender, EventArgs e) {
+
+            string ns2 = Path.Combine(Settings.LocalDirectory, "ns2.exe");
+
+            if (!File.Exists(ns2)){
+                MessageBox.Show(string.Format("Cannot find ns2.exe in directory {0}", Settings.LocalDirectory));
+		       return;
+	        }
+
+            ProcessStartInfo startInfo = new ProcessStartInfo {
+                WorkingDirectory = Settings.LocalDirectory,
+                FileName = "ns2.exe"
+            };
+
+            NS2Process = Process.Start(startInfo);
+        }
 	}
 }
 
